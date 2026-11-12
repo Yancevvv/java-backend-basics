@@ -1,15 +1,15 @@
 package org.example.service;
 
-import org.example.dao.UserDao;
+import org.example.dao.IUserDao;
 import org.example.model.User;
 
 import java.util.List;
 import java.util.Optional;
 
 public class UserService {
-    private final UserDao userDao;
+    private final IUserDao userDao;
 
-    public UserService(UserDao userDao) {
+    public UserService(IUserDao userDao) {
         this.userDao = userDao;
     }
 

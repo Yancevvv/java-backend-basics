@@ -22,10 +22,6 @@ class UserDaoImplIT {
             .withUsername("test")
             .withPassword("test");
 
-    static {
-        postgres.start(); // запуск в статическом блоке — до всех тестов
-    }
-
     private static SessionFactory sessionFactory;
     private UserDaoImpl userDao;
 

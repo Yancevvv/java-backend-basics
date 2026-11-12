@@ -1,6 +1,6 @@
 package org.example.service;
 
-import org.example.dao.UserDao;
+import org.example.dao.IUserDao;
 import org.example.model.User;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,7 +21,7 @@ import static org.mockito.Mockito.*;
 class UserServiceTest {
 
     @Mock
-    private UserDao userDao;
+    private IUserDao userDao;
 
     @InjectMocks
     private UserService userService;
