@@ -13,16 +13,24 @@ public class UserDAO {
     private static final Logger logger = LoggerFactory.getLogger(UserDAO.class);
 
     public void save(User user) {
+        Session session = null;
         Transaction transaction = null;
-        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+        try {
+            session = HibernateUtil.getSessionFactory().openSession();
             transaction = session.beginTransaction();
             session.persist(user);
             transaction.commit();
             logger.info("User saved successfully: {}", user);
         } catch (Exception e) {
-            if (transaction != null) transaction.rollback();
+            if (transaction != null && transaction.isActive()) {
+                transaction.rollback();
+            }
             logger.error("Error saving user", e);
             throw new RuntimeException("Failed to save user", e);
+        } finally {
+            if (session != null && session.isOpen()) {
+                session.close();
+            }
         }
     }
 
