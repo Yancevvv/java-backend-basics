@@ -6,6 +6,7 @@ import org.hibernate.cfg.Configuration;
 import org.junit.jupiter.api.*;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.junit.jupiter.Container;
 
 import java.util.List;
 import java.util.Optional;
@@ -16,7 +17,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 @Testcontainers
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class UserDaoImplIT {
-
+    
+    @Container
     static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:16-alpine")
             .withDatabaseName("testdb")
             .withUsername("test")
