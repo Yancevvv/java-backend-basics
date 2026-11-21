@@ -1,49 +1,58 @@
 package org.example.service;
 
-import org.example.dao.IUserDao;
+import org.example.dto.UserRequest;
+import org.example.dto.UserResponse;
+import org.example.mapper.UserMapper;
 import org.example.model.User;
+import org.example.repository.UserRepository;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
 
+@Service
+@Transactional
 public class UserService {
-    private final IUserDao userDao;
 
-    public UserService(IUserDao userDao) {
-        this.userDao = userDao;
+    private final UserRepository userRepository;
+
+    public UserService(UserRepository userRepository) {
+        this.userRepository = userRepository;
     }
 
-    public User createUser(String name, String email, int age) {
-        if (name == null || name.isBlank()) {
-            throw new IllegalArgumentException("Name must not be blank");
+    public UserResponse create(UserRequest request) {
+        if (userRepository.findByEmail(request.email()).isPresent()) {
+            throw new IllegalArgumentException("Email already exists: " + request.email());
         }
-        if (email == null || !email.contains("@")) {
-            throw new IllegalArgumentException("Email must be valid");
-        }
-        if (age < 0 || age > 150) {
-            throw new IllegalArgumentException("Age must be between 0 and 150");
-        }
-        return userDao.save(new User(name, email, age));
+        User saved = userRepository.save(UserMapper.toEntity(request));
+        return UserMapper.toResponse(saved);
     }
 
-    public Optional<User> getUser(Long id) {
-        return userDao.findById(id);
+    @Transactional(readOnly = true)
+    public Optional<UserResponse> findById(Long id) {
+        return userRepository.findById(id).map(UserMapper::toResponse);
     }
 
-    public List<User> getAllUsers() {
-        return userDao.findAll();
+    @Transactional(readOnly = true)
+    public List<UserResponse> findAll() {
+        return userRepository.findAll().stream()
+                .map(UserMapper::toResponse)
+                .toList();
     }
 
-    public User updateUser(Long id, String name, String email, Integer age) {
-        User existing = userDao.findById(id)
+    public UserResponse update(Long id, UserRequest request) {
+        User existing = userRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("User not found: " + id));
-        if (name != null && !name.isBlank()) existing.setName(name);
-        if (email != null && email.contains("@")) existing.setEmail(email);
-        if (age != null && age >= 0) existing.setAge(age);
-        return userDao.update(existing);
+        UserMapper.updateEntity(existing, request);
+        User updated = userRepository.save(existing);
+        return UserMapper.toResponse(updated);
     }
 
-    public boolean deleteUser(Long id) {
-        return userDao.deleteById(id);
+    public void delete(Long id) {
+        if (!userRepository.existsById(id)) {
+            throw new IllegalArgumentException("User not found: " + id);
+        }
+        userRepository.deleteById(id);
     }
 }
